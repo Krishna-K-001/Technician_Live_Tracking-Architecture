@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Live Technician Tracking - Field service · Solution Document</title>
+<style>
+    :root {
+        --blue: #0b5cab;
+        --blue-light: #1b96ff;
+        --green: #0a7d57;
+        --green-bg: #e6f7ef;
+        --amber: #8a5a00;
+        --amber-bg: #fff4d6;
+        --red: #b3261e;
+        --red-bg: #fdeceb;
+        --ink: #16325c;
+        --muted: #5c6b7a;
+        --bg: #eef2f7;
+        --card: #ffffff;
+        --border: #d8e1ea;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+        margin: 0;
+        font-family: "Segoe UI", "Salesforce Sans", Arial, sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.6;
+    }
+    header.hero {
+        background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+        color: #fff;
+        padding: 48px 24px 40px;
+        text-align: center;
+    }
+    header.hero .eyebrow { text-transform: uppercase; letter-spacing: 2px; font-size: 12px; opacity: 0.85; }
+    header.hero h1 { margin: 8px 0; font-size: 34px; }
+    header.hero p { margin: 0 auto; max-width: 760px; opacity: 0.95; font-size: 16px; }
+    .meta { margin-top: 18px; font-size: 13px; opacity: 0.85; }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; padding: 24px 16px 60px; }
+    nav.toc { position: sticky; top: 16px; align-self: start; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-size: 14px; }
+    nav.toc strong { display: block; margin-bottom: 8px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    nav.toc a { display: block; padding: 5px 8px; color: var(--ink); text-decoration: none; border-radius: 6px; }
+    nav.toc a:hover { background: #eaf4ff; color: var(--blue); }
+
+    section.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    section.card h2 { margin: 0 0 14px; font-size: 22px; color: var(--blue); }
+    section.card h3 { margin: 20px 0 8px; font-size: 16px; }
+    .num { display: inline-block; min-width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; background: var(--blue); color: #fff; font-size: 14px; margin-right: 8px; }
+
+    .grid { display: grid; gap: 14px; }
+    .grid.c2 { grid-template-columns: repeat(2, 1fr); }
+    .grid.c3 { grid-template-columns: repeat(3, 1fr); }
+    .grid.c4 { grid-template-columns: repeat(4, 1fr); }
+    .tile { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; background: #f9fbfd; }
+    .tile h4 { margin: 0 0 6px; font-size: 15px; color: var(--blue); }
+    .tile p { margin: 0; font-size: 14px; color: var(--muted); }
+    .tile.problem { border-left: 4px solid var(--red); }
+    .tile.solution { border-left: 4px solid var(--green); }
+
+    .callout { border-radius: 10px; padding: 14px 18px; margin: 14px 0; font-size: 15px; }
+    .callout.info { background: #e3f2fd; border-left: 4px solid var(--blue); }
+    .callout.ok { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .callout.warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f4f6f9; color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; }
+    code { background: #eef2f7; padding: 1px 6px; border-radius: 4px; font-size: 13px; overflow-wrap: anywhere; }
+    main { min-width: 0; }
+    section.card { overflow-x: auto; }
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .pill.green { background: var(--green-bg); color: var(--green); }
+    .pill.amber { background: var(--amber-bg); color: var(--amber); }
+    .pill.blue { background: #e3f2fd; color: var(--blue); }
+    .pill.red { background: var(--red-bg); color: var(--red); }
+
+    ol.journey { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+    ol.journey li { position: relative; padding: 10px 0 10px 48px; border-left: 2px dashed var(--border); margin-left: 15px; }
+    ol.journey li::before { counter-increment: step; content: counter(step); position: absolute; left: -16px; top: 8px; width: 30px; height: 30px; border-radius: 50%; background: var(--blue-light); color: #fff; text-align: center; line-height: 30px; font-weight: 600; }
+    ol.journey li strong { color: var(--blue); }
+
+    .formula { font-family: Consolas, monospace; background: #0f2a4a; color: #e6f1ff; padding: 14px 18px; border-radius: 10px; font-size: 14px; overflow-x: auto; }
+    .mermaid { text-align: center; margin: 10px 0; }
+    footer { text-align: center; color: var(--muted); font-size: 12px; padding: 20px; }
+
+    @media (max-width: 900px) {
+        .layout { grid-template-columns: 1fr; }
+        nav.toc { position: static; }
+        .grid.c3, .grid.c4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+        .grid.c2, .grid.c3, .grid.c4 { grid-template-columns: 1fr; }
+    }
+    @media print {
+        body { background: #fff; }
+        nav.toc { display: none; }
+        .layout { grid-template-columns: 1fr; padding: 0; }
+        section.card { box-shadow: none; page-break-inside: avoid; }
+        header.hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+<!-- Code injected by Five-server -->
+  <script async data-id="five-server" data-file="c:\Users\ilangova-2\SFSSMNEWAUGUST\SFFSM\sffsm\docs\techlive-solution-document.html" type="application/javascript" src="/fiveserver.js"></script>
+  </head>
+<body>
+
+<header class="hero">
+    <div class="eyebrow">Field Service Innovation · Solution Document</div>
+    <h1>Live Technician Tracking - Filed Service</h1>
+    <p>Giving every customer a real-time view of their arriving service technician — live location,
+    estimated arrival time and turn-by-turn navigation — through a secure, branded web page that
+    works on any device, with no app to install.</p>
+    <div class="meta">Platform: Salesforce Field Service · Experience Cloud &nbsp;|&nbsp; Audience: Global stakeholders &nbsp;|&nbsp; Version 1.0</div>
+</header>
+
+<div class="layout">
+    <nav class="toc">
+        <strong>Contents</strong>
+        <a href="#summary">1. Executive summary</a>
+        <a href="#problem">2. The problem</a>
+        <a href="#solution">3. The solution</a>
+        <a href="#journey">4. Customer journey</a>
+        <a href="#architecture">5. Solution architecture</a>
+        <a href="#design">6. Detailed design</a>
+        <a href="#decisions">7. Key design decisions</a>
+        <a href="#security">8. Security &amp; privacy</a>
+        <a href="#global">9. Global readiness</a>
+        <a href="#value">10. Business value &amp; KPIs</a>
+        <a href="#limits">11. Limitations &amp; roadmap</a>
+        <a href="#rollout">12. Rollout approach</a>
+        <a href="#appendix">13. Appendix</a>
+    </nav>
+
+    <main>
+        <!-- 1 -->
+        <section class="card" id="summary">
+            <h2><span class="num">1</span>Executive summary</h2>
+            <p>Customers waiting for a field service visit typically receive a broad time window and no
+            visibility of where the technician is. This creates uncertainty, repeated
+            &ldquo;where is my technician?&rdquo; calls, and sites that are not ready when the technician arrives.</p>
+            <p><strong>TechLive</strong> solves this by publishing a secure tracking page for each Service Appointment.
+            While the technician is travelling, the customer sees the technician's live position on a map, an
+            estimated time of arrival, the confirmed destination and a one-tap link to live navigation.
+            When the technician arrives, tracking switches off automatically.</p>
+            <div class="grid c4">
+                <div class="tile"><h4>Real-time</h4><p>Position refreshes every 10 seconds from the technician's mobile GPS.</p></div>
+                <div class="tile"><h4>Zero install</h4><p>Runs in any browser on phone, tablet or desktop.</p></div>
+                <div class="tile"><h4>Low cost</h4><p>No paid map API keys, no external callouts, built on existing licences.</p></div>
+                <div class="tile"><h4>Privacy-first</h4><p>Location is shared only during travel and only when tracking is enabled.</p></div>
+            </div>
+        </section>
+
+        <!-- 2 -->
+        <section class="card" id="problem">
+            <h2><span class="num">2</span>The problem</h2>
+            <p>Consumers now expect the transparency they get from ride-hailing and parcel delivery. Field service
+            visits &mdash; often for business-critical equipment &mdash; have not kept pace.</p>
+            <div class="grid c2">
+                <div class="tile problem"><h4>Uncertain arrival windows</h4><p>Customers are given multi-hour windows and must keep staff and equipment on standby without knowing when the technician will actually arrive.</p></div>
+                <div class="tile problem"><h4>&ldquo;Where is my technician?&rdquo; calls</h4><p>Customers call the service desk or dispatcher for updates, consuming time that could be spent planning and supporting work.</p></div>
+                <div class="tile problem"><h4>Site not ready on arrival</h4><p>Without advance notice, site access, safety permits, contact persons or equipment shutdowns are not prepared &mdash; causing waiting time, failed visits and reschedules.</p></div>
+                <div class="tile problem"><h4>Technician distraction</h4><p>Technicians phone ahead or answer calls while driving to give status updates, which is unsafe and unproductive.</p></div>
+                <div class="tile problem"><h4>Wrong destination pin</h4><p>Stored coordinates on records can be imprecise, sending navigation to the wrong building or entrance on large industrial sites.</p></div>
+                <div class="tile problem"><h4>Inconsistent experience</h4><p>Status updates vary by region, dispatcher and technician, so customers worldwide receive a different level of service.</p></div>
+            </div>
+            <div class="callout info"><strong>Problem statement:</strong> Customers lack real-time, trustworthy visibility of an arriving
+            technician, which drives avoidable contact volume, wasted on-site time and lower customer satisfaction.</div>
+        </section>
+
+        <!-- 3 -->
+        <section class="card" id="solution">
+            <h2><span class="num">3</span>The solution</h2>
+            <p>A customer-facing, branded tracking page hosted on a Salesforce Experience Cloud site, driven entirely
+            by data that Field Service already captures.</p>
+            <div class="grid c3">
+                <div class="tile solution"><h4>Live technician map</h4><p>Embedded map showing the route from the technician's current position to the customer site.</p></div>
+                <div class="tile solution"><h4>Estimated arrival</h4><p>Plain-language ETA such as &ldquo;Technician will arrive in about 18 min&rdquo;, recalculated on every refresh.</p></div>
+                <div class="tile solution"><h4>Confirmed destination</h4><p>Customer name and service address shown, so the customer can confirm the correct site.</p></div>
+                <div class="tile solution"><h4>One-tap navigation</h4><p>&ldquo;Open navigation in Google Maps&rdquo; for a live, traffic-aware ETA and route.</p></div>
+                <div class="tile solution"><h4>Freshness indicator</h4><p>&ldquo;Technician location updated: &lt;time&gt;&rdquo; so customers know how current the data is.</p></div>
+                <div class="tile solution"><h4>Automatic end of tracking</h4><p>When travel ends, the page shows &ldquo;Technician Has Arrived&rdquo; and stops sharing location.</p></div>
+            </div>
+            <h3>How the problem maps to the solution</h3>
+            <table>
+                <thead><tr><th>Problem</th><th>TechLive capability</th></tr></thead>
+                <tbody>
+                    <tr><td>Uncertain arrival windows</td><td>Live map + ETA, refreshed every 10 seconds</td></tr>
+                    <tr><td>Status calls to service desk</td><td>Self-service tracking link available on demand</td></tr>
+                    <tr><td>Site not ready</td><td>Customer sees the technician approaching and prepares access in time</td></tr>
+                    <tr><td>Technician distraction</td><td>No manual call-ahead needed; location shared automatically from the mobile app</td></tr>
+                    <tr><td>Wrong destination pin</td><td>Destination resolved from <em>Account Name + Address</em> for precise business location</td></tr>
+                    <tr><td>Inconsistent experience</td><td>One standard, branded page for all regions</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 4 -->
+        <section class="card" id="journey">
+            <h2><span class="num">4</span>Customer journey</h2>
+            <ol class="journey">
+                <li><strong>Schedule.</strong> The dispatcher schedules the Service Appointment and assigns a technician in Salesforce Field Service.</li>
+                <li><strong>Start travel.</strong> The technician sets the appointment to <em>Travel</em> in the Field Service mobile app. Tracking is enabled for the appointment (<code>MT_Tracking_Active__c</code>).</li>
+                <li><strong>Share link.</strong> The customer receives the tracking link for their appointment (e.g., by email or SMS through the organisation's notification process).</li>
+                <li><strong>Track.</strong> The customer opens the link on any device and sees the live map, ETA, destination and last-update time. The page refreshes automatically every 10 seconds.</li>
+                <li><strong>Prepare.</strong> As the technician approaches, the customer arranges site access, contacts and equipment.</li>
+                <li><strong>Arrive.</strong> When the appointment leaves the <em>Travel</em> status or tracking is switched off, the page shows &ldquo;Technician Has Arrived&rdquo; and location sharing stops.</li>
+            </ol>
+            <h3>What the customer sees</h3>
+            <table>
+                <thead><tr><th>Page state</th><th>When</th><th>Display</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="pill amber">Locating</span></td><td>Tracking is active but no technician GPS position is available yet</td><td>Spinner &mdash; &ldquo;Locating your technician&hellip;&rdquo;</td></tr>
+                    <tr><td><span class="pill green">Live</span></td><td>Tracking is active and a GPS position is available</td><td>ETA card, live map with route, destination card, last-updated time, navigation button</td></tr>
+                    <tr><td><span class="pill blue">Arrived / ended</span></td><td>Appointment no longer in <em>Travel</em> or tracking disabled</td><td>&ldquo;Technician Has Arrived &mdash; Live tracking has been turned off.&rdquo; Polling stops.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 5 -->
+        <section class="card" id="architecture">
+            <h2><span class="num">5</span>Solution architecture</h2>
+            <p>TechLive is built entirely on the Salesforce platform and reuses data already maintained by Field Service.</p>
+            <table>
+                <thead><tr><th>Layer</th><th>Component</th><th>Responsibility</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="pill blue">Presentation</span></td><td>Lightning Web Component <code>mtTechnicianLiveTracking</code> on an Experience Cloud page</td><td>Reads the appointment ID from the link, polls every 10 s, computes ETA, renders map and states, branded header and product carousel</td></tr>
+                    <tr><td><span class="pill blue">Application</span></td><td>Apex <code>MT_TechnicianTrackingController</code></td><td>Securely aggregates appointment, work order and technician location into one response</td></tr>
+                    <tr><td><span class="pill green">Data</span></td><td>ServiceAppointment, WorkOrder, AssignedResource, ServiceResource, Account</td><td>Source of appointment status, customer site and technician last-known location</td></tr>
+                    <tr><td><span class="pill green">Automation</span></td><td>Before-save flows <code>MT_SA_Set_Local_GeoCode</code>, <code>MT_Update_WorkOrder_Account_City</code></td><td>Copy the Account's local geocode onto Service Appointments and Work Orders</td></tr>
+                    <tr><td><span class="pill amber">External</span></td><td>Field Service mobile app; Google Maps (public embed)</td><td>Technician GPS capture; map rendering and navigation</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Component view</h3>
+            <div class="mermaid">
+flowchart LR
+    subgraph Customer["Customer"]
+        B["Browser / Mobile<br/>tracking link ?id=SA_Id"]
+    end
+    subgraph EC["Experience Cloud Site"]
+        L["LWC mtTechnicianLiveTracking"]
+        S["Static Resources<br/>brand images"]
+    end
+    subgraph AP["Apex"]
+        C["MT_TechnicianTrackingController"]
+    end
+    subgraph FS["Field Service Data"]
+        SA["ServiceAppointment"]
+        WO["WorkOrder"]
+        AR["AssignedResource"]
+        SR["ServiceResource<br/>last known GPS"]
+        AC["Account<br/>local geocode"]
+    end
+    subgraph EX["External"]
+        M["Google Maps embed"]
+        F["FSL Mobile App"]
+    end
+    B --> L
+    S -.-> L
+    L -->|every 10 s| C
+    C --> SA
+    C --> WO
+    C --> AR --> SR
+    F -->|GPS updates| SR
+    AC -->|before-save flows| SA
+    AC -->|before-save flows| WO
+    L -->|iframe + nav link| M
+            </div>
+
+            <h3>Runtime sequence</h3>
+            <div class="mermaid">
+sequenceDiagram
+    actor C as Customer
+    participant L as Tracking page (LWC)
+    participant A as Apex controller
+    participant D as Field Service data
+    participant G as Google Maps
+    C->>L: Open tracking link (?id=SA_Id)
+    loop Every 10 seconds
+        L->>A: getTechnicianLocation(saId)
+        A->>D: Appointment in Travel and tracking active?
+        A->>D: Work Order site, address, account name
+        A->>D: Assigned technician last-known GPS
+        A-->>L: status, technician and customer location, address, name, asOf
+        alt Live
+            L->>G: Embed route (technician to Name + Address)
+            L-->>C: ETA, map, destination, navigation link
+        else Arrived or inactive
+            L-->>C: "Technician Has Arrived", stop polling
+        end
+    end
+            </div>
+        </section>
+
+        <!-- 6 -->
+        <section class="card" id="design">
+            <h2><span class="num">6</span>Detailed design</h2>
+
+            <h3>6.1 Service contract &mdash; <code>getTechnicianLocation(saId)</code></h3>
+            <p>A single Apex method returns everything the page needs. Data is only returned when the appointment
+            is in <em>Travel</em> status and <code>MT_Tracking_Active__c</code> is true.</p>
+            <table>
+                <thead><tr><th>Field</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>active</code></td><td><code>false</code> when the appointment is not travelling or tracking is off &mdash; nothing else is returned</td></tr>
+                    <tr><td><code>locationAvailable</code></td><td>Whether the assigned technician has a last-known GPS position</td></tr>
+                    <tr><td><code>latitude</code>, <code>longitude</code></td><td>Technician's last-known position (<code>ServiceResource</code>)</td></tr>
+                    <tr><td><code>asOf</code></td><td>Timestamp of the technician's last GPS update</td></tr>
+                    <tr><td><code>customerLatitude</code>, <code>customerLongitude</code></td><td>Service site coordinates (Work Order, falling back to Service Appointment)</td></tr>
+                    <tr><td><code>customerAddress</code></td><td>Formatted address (street, city, state, postal code, country)</td></tr>
+                    <tr><td><code>customerName</code></td><td>Account name of the customer site</td></tr>
+                </tbody>
+            </table>
+
+            <h3>6.2 Customer location resolution</h3>
+            <ol>
+                <li>The Account holds the authoritative local geocode (<code>MT_Local_Latitude__c</code>, <code>MT_Local_Longitude__c</code>).</li>
+                <li>Before-save flows copy this geocode onto every Work Order and Service Appointment.</li>
+                <li>The controller prefers Work Order coordinates, address and account name, and falls back to the Service Appointment.</li>
+                <li>The map destination is sent as <em>&ldquo;Account Name, Address&rdquo;</em>, so Google Maps performs a place search and pins the actual business; coordinates are used only if no address exists.</li>
+            </ol>
+
+            <h3>6.3 ETA estimation (no paid API)</h3>
+            <p>The on-page ETA is a lightweight estimate computed in the browser:</p>
+            <div class="formula">
+distance_km = haversine(technician, customer) &times; 1.3 &nbsp;&nbsp;// road factor<br/>
+eta_minutes = round(distance_km &divide; 30 km/h &times; 60) &nbsp;&nbsp;// average urban speed
+            </div>
+            <p>Results &le; 1 minute display &ldquo;Technician is arriving now&rdquo;; longer journeys show hours and minutes.
+            The page labels this as approximate and offers the Google Maps link for a live, traffic-aware ETA.
+            Both the speed and road factor are tunable parameters.</p>
+
+            <h3>6.4 Polling and lifecycle</h3>
+            <ul>
+                <li>Polling starts when the page reads the appointment ID (<code>id</code> or <code>c__id</code> URL parameter) and repeats every 10 seconds.</li>
+                <li>Polling stops when tracking ends, when an error occurs, or when the customer leaves the page &mdash; no background load is left behind.</li>
+            </ul>
+
+            <h3>6.5 Branding</h3>
+            <p>The page carries a corporate brand header and an auto-scrolling carousel of product lines
+            (Precision, Laboratory, Industrial, Retail). Images are packaged as Salesforce static resources, so the
+            page has no dependency on external image hosting.</p>
+        </section>
+
+        <!-- 7 -->
+        <section class="card" id="decisions">
+            <h2><span class="num">7</span>Key design decisions</h2>
+            <table>
+                <thead><tr><th>Decision</th><th>Rationale</th><th>Trade-off</th></tr></thead>
+                <tbody>
+                    <tr><td>Use the Field Service mobile app's last-known location</td><td>Data is already captured; no new app or device integration</td><td>Freshness depends on the mobile app's GPS update frequency</td></tr>
+                    <tr><td>Browser polling every 10 seconds</td><td>Simple, reliable and works for guest users through firewalls</td><td>Small, steady server load per open page; not push-based</td></tr>
+                    <tr><td>Public Google Maps embed instead of a Maps API</td><td>No API key, billing or callout configuration</td><td>On-page ETA is estimated; live traffic ETA requires opening Google Maps</td></tr>
+                    <tr><td>Destination = &ldquo;Account Name, Address&rdquo;</td><td>Place search pins the actual business, avoiding coordinate drift</td><td>Relies on accurate account names and addresses</td></tr>
+                    <tr><td>Account geocode as source of truth, pushed by flows</td><td>One place to correct a site location; consistent across records</td><td>Requires Account geocode to be maintained</td></tr>
+                    <tr><td>Apex <code>without sharing</code> with strict gating</td><td>External/guest customers have no record access; data is exposed only for travelling, tracking-enabled appointments</td><td>Access control lives in code and must be reviewed carefully</td></tr>
+                    <tr><td>Images as static resources</td><td>Avoids Content Security Policy and hot-linking issues</td><td>Image changes require a deployment</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 8 -->
+        <section class="card" id="security">
+            <h2><span class="num">8</span>Security &amp; privacy</h2>
+            <div class="grid c2">
+                <div class="tile"><h4>Data minimisation</h4><p>Only the technician's position and timestamp, plus the customer's own site name and address, are returned. No technician personal details, contact data or work content are exposed.</p></div>
+                <div class="tile"><h4>Time-bound sharing</h4><p>Location is returned only while the appointment is in <em>Travel</em> <strong>and</strong> tracking is explicitly enabled. After arrival, the page receives nothing.</p></div>
+                <div class="tile"><h4>Read-only access</h4><p>The page performs no updates; the controller only reads a fixed set of fields.</p></div>
+                <div class="tile"><h4>No third-party data transfer via API</h4><p>No server-side callouts. The customer's browser loads the map directly from Google using the coordinates and address shown on the page.</p></div>
+            </div>
+            <div class="callout warn"><strong>Recommendations before global rollout:</strong>
+                <ul style="margin:6px 0 0">
+                    <li>Replace the raw Service Appointment ID in the link with a signed, expiring, non-guessable token.</li>
+                    <li>Confirm technician location-sharing consent and works-council / labour-law requirements per country.</li>
+                    <li>Review the privacy notice and data processing terms for map-provider use (e.g., GDPR, CCPA, PIPL, LGPD).</li>
+                    <li>Configure Experience Cloud guest-user profile with the minimum Apex class access only.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 9 -->
+        <section class="card" id="global">
+            <h2><span class="num">9</span>Global readiness</h2>
+            <table>
+                <thead><tr><th>Area</th><th>Current state</th><th>Global enhancement</th></tr></thead>
+                <tbody>
+                    <tr><td>Language</td><td>English UI text</td><td>Move text to Custom Labels and enable Experience Cloud translation</td></tr>
+                    <tr><td>Units</td><td>Kilometres for ETA calculation</td><td>Display miles/kilometres by locale</td></tr>
+                    <tr><td>Time zone</td><td>&ldquo;Last updated&rdquo; shown as a platform timestamp</td><td>Format in the customer's local time zone and locale</td></tr>
+                    <tr><td>Travel speed</td><td>Single average speed (30 km/h)</td><td>Configure average speed per country / region (urban vs. rural)</td></tr>
+                    <tr><td>Map provider</td><td>Google Maps</td><td>Pluggable provider for regions where Google Maps is restricted</td></tr>
+                    <tr><td>Address format</td><td>Street, City, State, Postal Code, Country</td><td>Country-specific address ordering where needed</td></tr>
+                    <tr><td>Devices &amp; networks</td><td>Responsive, lightweight, browser-based</td><td>Works on mobile data; no app download required</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 10 -->
+        <section class="card" id="value">
+            <h2><span class="num">10</span>Business value &amp; KPIs</h2>
+            <div class="grid c4">
+                <div class="tile solution"><h4>Customers</h4><p>Transparency, less waiting, better planning of site access and staff.</p></div>
+                <div class="tile solution"><h4>Service desk</h4><p>Fewer status calls; more time for value-adding support.</p></div>
+                <div class="tile solution"><h4>Technicians</h4><p>No call-ahead while driving; customers ready on arrival.</p></div>
+                <div class="tile solution"><h4>Business</h4><p>Higher satisfaction and productivity on existing licences.</p></div>
+            </div>
+            <h3>Suggested KPIs (baseline before pilot, measure after)</h3>
+            <table>
+                <thead><tr><th>KPI</th><th>Expected direction</th></tr></thead>
+                <tbody>
+                    <tr><td>&ldquo;Where is my technician?&rdquo; contacts per 100 appointments</td><td>&darr; Decrease</td></tr>
+                    <tr><td>On-site waiting time / failed access visits</td><td>&darr; Decrease</td></tr>
+                    <tr><td>First-time fix rate</td><td>&uarr; Increase</td></tr>
+                    <tr><td>Customer satisfaction (CSAT / NPS) for field visits</td><td>&uarr; Increase</td></tr>
+                    <tr><td>Tracking link open rate</td><td>Adoption indicator</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 11 -->
+        <section class="card" id="limits">
+            <h2><span class="num">11</span>Current limitations &amp; roadmap</h2>
+            <table>
+                <thead><tr><th>Limitation today</th><th>Roadmap item</th><th>Priority</th></tr></thead>
+                <tbody>
+                    <tr><td>Link uses the Service Appointment record ID</td><td>Signed, expiring tracking tokens</td><td><span class="pill red">High</span></td></tr>
+                    <tr><td>Link delivery depends on the local notification process</td><td>Automated SMS / email when travel starts</td><td><span class="pill red">High</span></td></tr>
+                    <tr><td>English-only text, single time format</td><td>Multi-language and locale-aware formatting</td><td><span class="pill red">High</span></td></tr>
+                    <tr><td>ETA is a straight-line estimate</td><td>Optional traffic-aware ETA via a routing API</td><td><span class="pill amber">Medium</span></td></tr>
+                    <tr><td>Arrival depends on a status change</td><td>Geofence-based automatic arrival detection</td><td><span class="pill amber">Medium</span></td></tr>
+                    <tr><td>No technician identity on page</td><td>Optional first name / photo for site security check-in</td><td><span class="pill amber">Medium</span></td></tr>
+                    <tr><td>No feedback loop</td><td>Post-visit rating on the same page</td><td><span class="pill blue">Low</span></td></tr>
+                    <tr><td>Polling model</td><td>Platform Events / streaming for push updates at scale</td><td><span class="pill blue">Low</span></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 12 -->
+        <section class="card" id="rollout">
+            <h2><span class="num">12</span>Rollout approach</h2>
+            <div class="grid c3">
+                <div class="tile"><h4>Phase 1 &mdash; Pilot</h4><p>One country / service team. Capture KPI baseline, validate GPS freshness and ETA accuracy, gather customer feedback.</p></div>
+                <div class="tile"><h4>Phase 2 &mdash; Regional</h4><p>Add secure tokens, automated notifications and translations. Complete privacy and works-council reviews per country.</p></div>
+                <div class="tile"><h4>Phase 3 &mdash; Global</h4><p>Region-specific ETA tuning and map providers, KPI dashboards, and standard operating procedures for all service organisations.</p></div>
+            </div>
+            <h3>Prerequisites per country</h3>
+            <ul>
+                <li>Field Service mobile app location tracking enabled for technicians.</li>
+                <li>Account local geocodes and addresses maintained.</li>
+                <li>Experience Cloud site published with guest access to the tracking page.</li>
+                <li>Process defined for enabling tracking and sending the link to the customer.</li>
+            </ul>
+        </section>
+
+        <!-- 13 -->
+        <section class="card" id="appendix">
+            <h2><span class="num">13</span>Appendix</h2>
+            <h3>A. Metadata inventory</h3>
+            <table>
+                <thead><tr><th>Type</th><th>Name</th></tr></thead>
+                <tbody>
+                    <tr><td>Apex class</td><td><code>MT_TechnicianTrackingController</code></td></tr>
+                    <tr><td>Lightning Web Component</td><td><code>mtTechnicianLiveTracking</code></td></tr>
+                    <tr><td>Flow (before save, Service Appointment)</td><td><code>MT_SA_Set_Local_GeoCode</code></td></tr>
+                    <tr><td>Flow (before save, Work Order)</td><td><code>MT_Update_WorkOrder_Account_City</code></td></tr>
+                    <tr><td>Static resources</td><td><code>MT_Precision_Image</code>, <code>MT_Lab_Image</code>, <code>MT_Industry_Image</code>, <code>MT_Retail_Image</code></td></tr>
+                    <tr><td>Account fields</td><td><code>MT_Local_Latitude__c</code>, <code>MT_Local_Longitude__c</code></td></tr>
+                    <tr><td>Service Appointment field</td><td><code>MT_Tracking_Active__c</code></td></tr>
+                </tbody>
+            </table>
+            <h3>B. Glossary</h3>
+            <table>
+                <tbody>
+                    <tr><td><strong>Service Appointment (SA)</strong></td><td>A scheduled visit by a technician to a customer site</td></tr>
+                    <tr><td><strong>Work Order (WO)</strong></td><td>The job to be performed; parent of the Service Appointment</td></tr>
+                    <tr><td><strong>Service Resource</strong></td><td>The technician record, including last-known GPS location</td></tr>
+                    <tr><td><strong>FSL</strong></td><td>Salesforce Field Service (Lightning) and its mobile app</td></tr>
+                    <tr><td><strong>Experience Cloud</strong></td><td>Salesforce platform for external customer-facing sites</td></tr>
+                    <tr><td><strong>LWC</strong></td><td>Lightning Web Component &mdash; the page's user-interface component</td></tr>
+                    <tr><td><strong>ETA</strong></td><td>Estimated time of arrival</td></tr>
+                </tbody>
+            </table>
+            <p>See also: <a href="techlive-architecture.html">techlive-architecture.html</a> (technical architecture view).</p>
+        </section>
+    </main>
+</div>
+
+<footer>TechLive — Technician Live Tracking · Solution Document v1.0 · Print to PDF from your browser for distribution.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: "default", securityLevel: "strict" });
+</script>
+</body>
+</html>
